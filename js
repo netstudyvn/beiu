@@ -1,5 +1,5 @@
 // Thay thế URL này bằng URL web app của bạn từ Google Apps Script
-const APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxuLLAGsascEgTKHcmOspWIZRBF4YNY5NCYC8tzJbFod0P0xBzK9NdiD-5aiaXPU4U1/exec';
 
 // Load ảnh khi trang được tải
 document.addEventListener('DOMContentLoaded', function() {
