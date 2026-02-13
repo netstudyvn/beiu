@@ -6,6 +6,37 @@
     <title>Album Tình Yêu - Valentine 14/2</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        /* Fallback CSS trong trường hợp không load được file style.css */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
+            font-family: 'Quicksand', sans-serif;
+            min-height: 100vh;
+            color: white;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { 
+            text-align: center; 
+            padding: 40px 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            margin-bottom: 30px;
+        }
+        .header h1 { font-family: 'Dancing Script', cursive; font-size: 3em; }
+        .gallery { 
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .loading { 
+            text-align: center; 
+            font-size: 1.5em; 
+            padding: 50px;
+            grid-column: 1 / -1;
+        }
+    </style>
 </head>
 <body>
     <div class="floating-hearts"></div>
@@ -15,19 +46,20 @@
             <h1>❤️ Album Tình Yêu của Chúng Mình ❤️</h1>
             <p class="subtitle">Những khoảnh khắc ngọt ngào bên em</p>
             <div class="countdown">
-                <span id="days">0</span> ngày <span id="hours">0</span> giờ <span id="minutes">0</span> phút
+                <span id="days">0</span> ngày 
+                <span id="hours">0</span> giờ 
+                <span id="minutes">0</span> phút
                 <span id="seconds">0</span> giây đến Valentine
             </div>
         </header>
 
         <div class="gallery" id="gallery">
-            <!-- Ảnh sẽ được load từ JS -->
             <div class="loading">Đang tải những kỷ niệm ngọt ngào...</div>
         </div>
     </div>
 
-    <!-- Modal hiển thị chi tiết ảnh -->
-    <div id="photoModal" class="modal">
+    <!-- Modal -->
+    <div id="photoModal" class="modal" style="display: none;">
         <span class="close">&times;</span>
         <div class="modal-content">
             <img class="modal-image" id="modalImage" src="">
