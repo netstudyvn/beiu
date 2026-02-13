@@ -1,5 +1,5 @@
 // THAY URL NÀY BẰNG URL APPS SCRIPT CỦA BẠN
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0uCQXsAzzQ93zxLb8yq_rFKwoYwEwCNsflcmVkNMd-ZWGeNI6dy14gjt9lT3Z1biD/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ6zg6Z_hqmzFb8mXZZTJzDqh_9fuGUeR-xS7Aiw9HJcxfJ2i-hBm50v5ZI3CxQLzA/exec';
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Trang đã load xong');
