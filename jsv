@@ -1,8 +1,10 @@
-// THAY URL NÀY BẰNG URL APPS SCRIPT CỦA BẠN
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ6zg6Z_hqmzFb8mXZZTJzDqh_9fuGUeR-xS7Aiw9HJcxfJ2i-hBm50v5ZI3CxQLzA/exec';
 
+// Thêm CORS proxy để vượt qua chặn của Google Drive
+const CORS_PROXY = 'https://cors-anywhere.herokuapp.com/';
+
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Trang đã load xong');
+    console.log('Trang đã load');
     loadPhotos();
     startCountdown();
     createFloatingHearts();
@@ -22,26 +24,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
 async function loadPhotos() {
     const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '<div class="loading">Đang tải những kỷ niệm ngọt ngào... ❤️</div>';
     
     try {
         console.log('Đang fetch từ:', APPS_SCRIPT_URL);
-        const response = await fetch(APPS_SCRIPT_URL);
+        const response = await fetch(APPS_SCRIPT_URL + '?t=' + new Date().getTime());
         const photos = await response.json();
         
         console.log('Dữ liệu nhận được:', photos);
         
         if (!photos || photos.length === 0) {
-            gallery.innerHTML = '<div class="loading">Chưa có ảnh nào. Em thêm ảnh vào Google Sheet nhé! ❤️</div>';
+            gallery.innerHTML = '<div class="loading">Chưa có ảnh nào. Em thêm ảnh vào nhé! ❤️</div>';
             return;
         }
         
         displayPhotos(photos);
+        
     } catch (error) {
         console.error('Lỗi:', error);
         gallery.innerHTML = `
             <div class="loading">
-                <p>😢 Có lỗi khi tải ảnh</p>
-                <p style="font-size: 14px; margin-top: 10px;">Nhưng tình yêu anh dành cho em vẫn luôn ở đây! ❤️</p>
+                <p>❤️</p>
+                <p>Đang thử kết nối lại...</p>
+                <p style="font-size: 14px; margin-top: 10px;">${error.message}</p>
+                <button onclick="loadPhotos()" style="
+                    background: #ff4d6d;
+                    color: white;
+                    border: none;
+                    padding: 10px 30px;
+                    border-radius: 50px;
+                    font-size: 1.1em;
+                    margin-top: 20px;
+                    cursor: pointer;
+                    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                ">Thử lại 🔄</button>
             </div>
         `;
     }
@@ -54,35 +70,49 @@ function displayPhotos(photos) {
     photos.forEach((photo, index) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
-        item.style.cssText = `
-            position: relative;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            cursor: pointer;
-            transition: transform 0.3s ease;
-            aspect-ratio: 1;
-        `;
         
         const img = document.createElement('img');
-        img.src = photo.url;
-        img.alt = `Kỷ niệm ${index + 1}`;
-        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        
+        // Xử lý link Google Drive
+        let imageUrl = photo.url;
+        if (imageUrl.includes('drive.google.com')) {
+            // Chuyển đổi sang link ảnh trực tiếp
+            const fileId = extractGoogleDriveId(imageUrl);
+            if (fileId) {
+                // Thử nhiều cách để hiển thị ảnh Google Drive
+                imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+            }
+        }
+        
+        img.src = imageUrl;
+        img.alt = photo.description;
+        img.loading = 'lazy';
+        
+        // Thử các link dự phòng nếu link chính không load được
         img.onerror = function() {
-            this.src = 'https://via.placeholder.com/300x300?text=❤️';
-            console.log('Lỗi load ảnh:', photo.url);
+            console.log('Lỗi load ảnh:', imageUrl);
+            
+            // Thử link dự phòng
+            const fileId = extractGoogleDriveId(photo.url);
+            if (fileId) {
+                // Thử link thumbnail khác
+                this.src = `https://drive.google.com/uc?export=view&id=${fileId}`;
+                
+                // Nếu vẫn lỗi, thử link qua proxy
+                this.onerror = function() {
+                    this.src = `https://images.weserv.nl/?url=drive.google.com/uc?id=${fileId}`;
+                    
+                    this.onerror = function() {
+                        this.src = 'https://via.placeholder.com/300x300?text=❤️+Anh+yêu+em';
+                    };
+                };
+            } else {
+                this.src = 'https://via.placeholder.com/300x300?text=❤️+Anh+yêu+em';
+            }
         };
         
         const overlay = document.createElement('div');
-        overlay.style.cssText = `
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-            color: white;
-            padding: 20px;
-        `;
+        overlay.className = 'overlay';
         overlay.innerHTML = `
             <p>${photo.description}</p>
             <small>${photo.date}</small>
@@ -96,13 +126,48 @@ function displayPhotos(photos) {
     });
 }
 
+// Hàm lấy ID từ link Google Drive
+function extractGoogleDriveId(url) {
+    const patterns = [
+        /\/d\/([^\/]+)/,
+        /id=([^&]+)/,
+        /[-\w]{25,}/
+    ];
+    
+    for (let pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) {
+            return match[1] || match[0];
+        }
+    }
+    return null;
+}
+
 function showPhotoDetail(photo) {
     const modal = document.getElementById('photoModal');
-    document.getElementById('modalImage').src = photo.url;
+    const modalImg = document.getElementById('modalImage');
+    
+    let imageUrl = photo.url;
+    if (imageUrl.includes('drive.google.com')) {
+        const fileId = extractGoogleDriveId(imageUrl);
+        if (fileId) {
+            imageUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+        }
+    }
+    
+    modalImg.src = imageUrl;
     document.getElementById('modalDescription').textContent = photo.description;
     document.getElementById('modalDate').textContent = photo.date;
     document.getElementById('modalLocation').textContent = photo.location;
     modal.style.display = 'block';
+    
+    // Xử lý lỗi trong modal
+    modalImg.onerror = function() {
+        const fileId = extractGoogleDriveId(photo.url);
+        if (fileId) {
+            this.src = `https://drive.google.com/uc?export=view&id=${fileId}`;
+        }
+    };
 }
 
 function startCountdown() {
@@ -134,63 +199,15 @@ function createFloatingHearts() {
         heart.style.cssText = `
             position: fixed;
             left: ${Math.random() * 100}%;
-            bottom: 0;
+            bottom: -50px;
             font-size: ${Math.random() * 20 + 10}px;
-            animation: float ${Math.random() * 3 + 4}s linear;
-            opacity: ${Math.random() * 0.5 + 0.5};
+            animation: float ${Math.random() * 3 + 4}s linear infinite;
+            opacity: ${Math.random() * 0.5 + 0.3};
             pointer-events: none;
-            z-index: 1000;
+            z-index: 999;
         `;
-        
         document.body.appendChild(heart);
         
-        setTimeout(() => {
-            heart.remove();
-        }, 7000);
+        setTimeout(() => heart.remove(), 7000);
     }, 300);
 }
-
-// Thêm CSS animation
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes float {
-        0% { transform: translateY(0) rotate(0deg); }
-        100% { transform: translateY(-100vh) rotate(360deg); }
-    }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.9);
-    }
-    .modal-content {
-        position: relative;
-        margin: 50px auto;
-        width: 90%;
-        max-width: 900px;
-    }
-    .modal-image {
-        width: 100%;
-        border-radius: 10px;
-    }
-    .modal-info {
-        background: white;
-        color: #333;
-        padding: 20px;
-        border-radius: 10px;
-        margin-top: 20px;
-    }
-    .close {
-        position: absolute;
-        top: 15px;
-        right: 35px;
-        color: white;
-        font-size: 40px;
-        cursor: pointer;
-    }
-`;
-document.head.appendChild(style);
