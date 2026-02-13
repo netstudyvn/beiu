@@ -1,27 +1,52 @@
-// Thay thế URL này bằng URL web app của bạn từ Google Apps Script
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx0uCQXsAzzQ93zxLb8yq_rFKwoYwEwCNsflcmVkNMd-ZWGeNI6dy14gjt9lT3Z1biD/exec';
+// THAY URL NÀY BẰNG URL APPS SCRIPT CỦA BẠN
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-pAzcoIEs4CgQ6e8-f4sD4Fe9IflHm2kXoigE3X2JwW6FNT5zrH47vihQoymIYQ2A/exec';
 
-// Load ảnh khi trang được tải
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('Trang đã load xong');
     loadPhotos();
     startCountdown();
     createFloatingHearts();
+    
+    // Modal close
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('photoModal').style.display = 'none';
+    });
+    
+    window.addEventListener('click', function(event) {
+        const modal = document.getElementById('photoModal');
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
 });
 
-// Load ảnh từ Google Sheets
 async function loadPhotos() {
+    const gallery = document.getElementById('gallery');
+    
     try {
+        console.log('Đang fetch từ:', APPS_SCRIPT_URL);
         const response = await fetch(APPS_SCRIPT_URL);
         const photos = await response.json();
+        
+        console.log('Dữ liệu nhận được:', photos);
+        
+        if (!photos || photos.length === 0) {
+            gallery.innerHTML = '<div class="loading">Chưa có ảnh nào. Em thêm ảnh vào Google Sheet nhé! ❤️</div>';
+            return;
+        }
+        
         displayPhotos(photos);
     } catch (error) {
-        console.error('Lỗi khi load ảnh:', error);
-        document.getElementById('gallery').innerHTML = 
-            '<div class="loading">Có lỗi xảy ra. Nhưng tình yêu anh dành cho em vẫn luôn ở đây! ❤️</div>';
+        console.error('Lỗi:', error);
+        gallery.innerHTML = `
+            <div class="loading">
+                <p>😢 Có lỗi khi tải ảnh</p>
+                <p style="font-size: 14px; margin-top: 10px;">Nhưng tình yêu anh dành cho em vẫn luôn ở đây! ❤️</p>
+            </div>
+        `;
     }
 }
 
-// Hiển thị ảnh lên gallery
 function displayPhotos(photos) {
     const gallery = document.getElementById('gallery');
     gallery.innerHTML = '';
@@ -29,44 +54,61 @@ function displayPhotos(photos) {
     photos.forEach((photo, index) => {
         const item = document.createElement('div');
         item.className = 'gallery-item';
-        item.innerHTML = `
-            <img src="${photo.url}" alt="Kỷ niệm ${index + 1}" loading="lazy">
-            <div class="overlay">
-                <p>${photo.description || 'Khoảnh khắc đẹp'}</p>
-                <small>${photo.date || ''}</small>
-            </div>
+        item.style.cssText = `
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            aspect-ratio: 1;
         `;
+        
+        const img = document.createElement('img');
+        img.src = photo.url;
+        img.alt = `Kỷ niệm ${index + 1}`;
+        img.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+        img.onerror = function() {
+            this.src = 'https://via.placeholder.com/300x300?text=❤️';
+            console.log('Lỗi load ảnh:', photo.url);
+        };
+        
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 20px;
+        `;
+        overlay.innerHTML = `
+            <p>${photo.description}</p>
+            <small>${photo.date}</small>
+        `;
+        
+        item.appendChild(img);
+        item.appendChild(overlay);
         
         item.addEventListener('click', () => showPhotoDetail(photo));
         gallery.appendChild(item);
     });
 }
 
-// Hiển thị chi tiết ảnh trong modal
 function showPhotoDetail(photo) {
     const modal = document.getElementById('photoModal');
-    const modalImg = document.getElementById('modalImage');
-    const modalDesc = document.getElementById('modalDescription');
-    const modalDate = document.getElementById('modalDate');
-    const modalLocation = document.getElementById('modalLocation');
-    
+    document.getElementById('modalImage').src = photo.url;
+    document.getElementById('modalDescription').textContent = photo.description;
+    document.getElementById('modalDate').textContent = photo.date;
+    document.getElementById('modalLocation').textContent = photo.location;
     modal.style.display = 'block';
-    modalImg.src = photo.url;
-    modalDesc.textContent = photo.description || 'Kỷ niệm đẹp';
-    modalDate.textContent = photo.date || 'Không rõ ngày';
-    modalLocation.textContent = photo.location || 'Không rõ địa điểm';
 }
 
-// Countdown đến Valentine
 function startCountdown() {
     function updateCountdown() {
         const now = new Date();
-        const currentYear = now.getFullYear();
-        let valentine = new Date(currentYear, 1, 14); // Tháng 2 (0-based: 1 = February)
-        
-        if (now > valentine) {
-            valentine = new Date(currentYear + 1, 1, 14);
-        }
+        const valentine = new Date(2026, 1, 14);
         
         const diff = valentine - now;
         
@@ -85,20 +127,22 @@ function startCountdown() {
     setInterval(updateCountdown, 1000);
 }
 
-// Tạo hiệu ứng trái tim bay
 function createFloatingHearts() {
-    const heartsContainer = document.querySelector('.floating-hearts');
-    
     setInterval(() => {
         const heart = document.createElement('div');
         heart.innerHTML = '❤️';
-        heart.style.position = 'absolute';
-        heart.style.left = Math.random() * 100 + '%';
-        heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
-        heart.style.animation = `float ${Math.random() * 3 + 4}s linear`;
-        heart.style.opacity = Math.random() * 0.5 + 0.5;
+        heart.style.cssText = `
+            position: fixed;
+            left: ${Math.random() * 100}%;
+            bottom: 0;
+            font-size: ${Math.random() * 20 + 10}px;
+            animation: float ${Math.random() * 3 + 4}s linear;
+            opacity: ${Math.random() * 0.5 + 0.5};
+            pointer-events: none;
+            z-index: 1000;
+        `;
         
-        heartsContainer.appendChild(heart);
+        document.body.appendChild(heart);
         
         setTimeout(() => {
             heart.remove();
@@ -106,15 +150,47 @@ function createFloatingHearts() {
     }, 300);
 }
 
-// Modal close button
-document.querySelector('.close').addEventListener('click', function() {
-    document.getElementById('photoModal').style.display = 'none';
-});
-
-// Click outside modal to close
-window.addEventListener('click', function(event) {
-    const modal = document.getElementById('photoModal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
+// Thêm CSS animation
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes float {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(-100vh) rotate(360deg); }
     }
-});
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.9);
+    }
+    .modal-content {
+        position: relative;
+        margin: 50px auto;
+        width: 90%;
+        max-width: 900px;
+    }
+    .modal-image {
+        width: 100%;
+        border-radius: 10px;
+    }
+    .modal-info {
+        background: white;
+        color: #333;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+    .close {
+        position: absolute;
+        top: 15px;
+        right: 35px;
+        color: white;
+        font-size: 40px;
+        cursor: pointer;
+    }
+`;
+document.head.appendChild(style);
