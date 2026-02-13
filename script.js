@@ -1,5 +1,5 @@
 // script.js - Album Tình Yêu Valentine
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ6zg6Z_hqmzFb8mXZZTJzDqh_9fuGUeR-xS7Aiw9HJcxfJ2i-hBm50v5ZI3CxQLzA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQuei36VGfTcqeb-VMQgPbbqmY1kqpk82GYi0noRUJI703C3sYF_TpsLN1PLrUytw/exec';
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Trang đã load thành công');
