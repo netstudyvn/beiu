@@ -1,5 +1,5 @@
 // script.js
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQuei36VGfTcqeb-VMQgPbbqmY1kqpk82GYi0noRUJI703C3sYF_TpsLN1PLrUytw/exec'; // THAY URL MỚI VÀO ĐÂY
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz0pHlE7pQSEhvvPz24iSOG-hwK5RSO5KrtoKUDGhLxdpxsPpntFnYz2LZZ1eYuy8Oc/exec'; // THAY URL MỚI VÀO ĐÂY
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('✅ Trang đã load');
