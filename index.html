@@ -4,38 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Album Tình Yêu - Valentine 14/2</title>
-    <link rel="stylesheet" href="style.css">
+    <!-- Thêm dấu ?v=1 để tránh cache -->
+    <link rel="stylesheet" href="style.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Quicksand:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
-        /* Fallback CSS trong trường hợp không load được file style.css */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        /* CSS dự phòng trong trường hợp không load được file */
+        body {
             background: linear-gradient(135deg, #ff758c 0%, #ff7eb3 100%);
             font-family: 'Quicksand', sans-serif;
-            min-height: 100vh;
             color: white;
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
         }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        .header { 
-            text-align: center; 
-            padding: 40px 20px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 20px;
-            margin-bottom: 30px;
-        }
-        .header h1 { font-family: 'Dancing Script', cursive; font-size: 3em; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; padding: 40px; }
         .gallery { 
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 20px;
             padding: 20px;
         }
-        .loading { 
-            text-align: center; 
-            font-size: 1.5em; 
-            padding: 50px;
-            grid-column: 1 / -1;
-        }
+        .loading { text-align: center; font-size: 1.5em; padding: 50px; }
     </style>
 </head>
 <body>
@@ -43,7 +33,7 @@
     
     <div class="container">
         <header class="header">
-            <h1>❤️ Album Tình Yêu của Chúng Mình ❤️</h1>
+            <h1 style="font-family: 'Dancing Script', cursive; font-size: 3em;">❤️ Album Tình Yêu của Chúng Mình ❤️</h1>
             <p class="subtitle">Những khoảnh khắc ngọt ngào bên em</p>
             <div class="countdown">
                 <span id="days">0</span> ngày 
@@ -54,23 +44,104 @@
         </header>
 
         <div class="gallery" id="gallery">
-            <div class="loading">Đang tải những kỷ niệm ngọt ngào...</div>
+            <div class="loading">Đang tải những kỷ niệm ngọt ngào... ❤️</div>
         </div>
     </div>
 
     <!-- Modal -->
-    <div id="photoModal" class="modal" style="display: none;">
-        <span class="close">&times;</span>
-        <div class="modal-content">
-            <img class="modal-image" id="modalImage" src="">
-            <div class="modal-info">
-                <h2 id="modalDescription"></h2>
+    <div id="photoModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9);">
+        <span style="position: absolute; top: 15px; right: 35px; color: white; font-size: 40px; cursor: pointer;" onclick="document.getElementById('photoModal').style.display='none'">&times;</span>
+        <div style="position: relative; margin: 50px auto; width: 90%; max-width: 900px;">
+            <img class="modal-image" id="modalImage" style="width: 100%; border-radius: 10px;">
+            <div style="background: white; color: #333; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h2 id="modalDescription" style="font-family: 'Dancing Script', cursive; color: #ff4d6d;"></h2>
                 <p><span>📅</span> Ngày: <span id="modalDate"></span></p>
                 <p><span>📍</span> Địa điểm: <span id="modalLocation"></span></p>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- Script trực tiếp trong file HTML để test -->
+    <script>
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-pAzcoIEs4CgQ6e8-f4sD4Fe9IflHm2kXoigE3X2JwW6FNT5zrH47vihQoymIYQ2A/exec';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Trang đã load');
+            loadPhotos();
+            startCountdown();
+        });
+
+        async function loadPhotos() {
+            const gallery = document.getElementById('gallery');
+            
+            try {
+                console.log('Đang fetch từ:', APPS_SCRIPT_URL);
+                const response = await fetch(APPS_SCRIPT_URL + '?t=' + Date.now());
+                const photos = await response.json();
+                
+                console.log('Dữ liệu:', photos);
+                
+                if (!photos || photos.length === 0) {
+                    gallery.innerHTML = '<div class="loading">Chưa có ảnh nào! ❤️</div>';
+                    return;
+                }
+                
+                // Hiển thị ảnh
+                gallery.innerHTML = '';
+                photos.forEach((photo, index) => {
+                    const item = document.createElement('div');
+                    item.style.cssText = `
+                        position: relative;
+                        border-radius: 15px;
+                        overflow: hidden;
+                        box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                        cursor: pointer;
+                        aspect-ratio: 1;
+                    `;
+                    
+                    item.innerHTML = `
+                        <img src="${photo.url}" 
+                             alt="${photo.description}"
+                             style="width: 100%; height: 100%; object-fit: cover;"
+                             onerror="this.src='https://via.placeholder.com/300x300?text=❤️'">
+                        <div style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; padding: 20px;">
+                            <p>${photo.description}</p>
+                            <small>${photo.date}</small>
+                        </div>
+                    `;
+                    
+                    item.onclick = () => showPhotoDetail(photo);
+                    gallery.appendChild(item);
+                });
+                
+            } catch (error) {
+                console.error('Lỗi:', error);
+                gallery.innerHTML = '<div class="loading">Có lỗi xảy ra. Anh yêu em! ❤️</div>';
+            }
+        }
+
+        function showPhotoDetail(photo) {
+            document.getElementById('modalImage').src = photo.url;
+            document.getElementById('modalDescription').textContent = photo.description;
+            document.getElementById('modalDate').textContent = photo.date;
+            document.getElementById('modalLocation').textContent = photo.location;
+            document.getElementById('photoModal').style.display = 'block';
+        }
+
+        function startCountdown() {
+            function update() {
+                const diff = new Date(2026, 1, 14) - new Date();
+                document.getElementById('days').textContent = Math.floor(diff / (1000*60*60*24));
+                document.getElementById('hours').textContent = Math.floor((diff % (1000*60*60*24)) / (1000*60*60));
+                document.getElementById('minutes').textContent = Math.floor((diff % (1000*60*60)) / (1000*60));
+                document.getElementById('seconds').textContent = Math.floor((diff % (1000*60)) / 1000);
+            }
+            update();
+            setInterval(update, 1000);
+        }
+    </script>
+    
+    <!-- Load file script.js riêng (sẽ tự động chạy sau khi HTML load) -->
+    <script src="script.js?v=1"></script>
 </body>
 </html>
