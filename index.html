@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bộ Bài Học Tiếng Anh</title>
+    <title>Bộ Bài Học đánh vần</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #000000; /* Nền đen */
             min-height: 100vh;
             padding: 20px;
         }
@@ -25,10 +25,10 @@
 
         h1 {
             text-align: center;
-            color: white;
+            color: #ff69b4; /* Màu hồng cho tiêu đề */
             margin-bottom: 30px;
             font-size: 2.5em;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            text-shadow: 0 0 10px rgba(255, 105, 180, 0.5);
         }
 
         .controls {
@@ -49,12 +49,12 @@
             font-weight: bold;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(255, 105, 180, 0.3);
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            box-shadow: 0 6px 12px rgba(255, 105, 180, 0.5);
         }
 
         button:active {
@@ -62,24 +62,21 @@
         }
 
         .shuffle-btn {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
+            background: #ff69b4; /* Màu hồng */
+            color: black;
+            border: 1px solid #ff1493;
         }
 
         .layout-btn {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
+            background: #ff1493; /* Màu hồng đậm hơn */
+            color: black;
+            border: 1px solid #ff69b4;
         }
 
         .loading-btn {
-            background: #95a5a6;
-            color: white;
+            background: #333333;
+            color: #ff69b4;
             cursor: not-allowed;
-        }
-
-        .loading-btn:hover {
-            transform: none;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .cards-container {
@@ -98,13 +95,13 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border-radius: 15px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 20px rgba(255, 105, 180, 0.3);
             transform-style: preserve-3d;
         }
 
         .card:hover {
             transform: scale(1.05);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 30px rgba(255, 105, 180, 0.5);
         }
 
         .card-inner {
@@ -134,55 +131,64 @@
         }
 
         .card-front {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            color: #333;
+            background: linear-gradient(135deg, #ffb6c1 0%, #ff69b4 100%); /* Gradient hồng nhạt đến hồng */
+            color: black;
             transform: rotateY(180deg);
             font-size: 1.2em;
             font-weight: bold;
             word-wrap: break-word;
             overflow-y: auto;
+            border: 2px solid #ff1493;
         }
 
         .card-back {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.2) 0px, rgba(255,255,255,0.2) 10px, transparent 10px, transparent 20px);
-            color: #764ba2;
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%); /* Gradient hồng đậm */
+            background-image: repeating-linear-gradient(45deg, 
+                rgba(255, 255, 255, 0.2) 0px, 
+                rgba(255, 255, 255, 0.2) 10px, 
+                transparent 10px, 
+                transparent 20px);
+            color: white;
             font-size: 2em;
             font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            border: 2px solid #ffb6c1;
         }
 
         .card-back::before {
             content: "♠ ♥ ♦ ♣";
             position: absolute;
             font-size: 24px;
-            color: rgba(118, 75, 162, 0.3);
+            color: rgba(255, 255, 255, 0.5);
             transform: rotate(-45deg);
         }
 
         .error-message {
-            background-color: #ff6b6b;
-            color: white;
+            background-color: #ff1493;
+            color: black;
             padding: 15px;
             border-radius: 10px;
             text-align: center;
             margin: 20px 0;
             display: none;
+            border: 1px solid #ff69b4;
         }
 
         .loading {
             text-align: center;
-            color: white;
+            color: #ff69b4;
             font-size: 1.2em;
             margin: 50px 0;
+            text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
         }
 
         .stats {
             text-align: center;
-            color: white;
+            color: #ff69b4;
             margin-bottom: 20px;
             font-size: 1.1em;
             opacity: 0.9;
+            text-shadow: 0 0 5px rgba(255, 105, 180, 0.5);
         }
 
         @media (max-width: 768px) {
@@ -222,16 +228,14 @@
         // Cấu hình API
         const API_URL = 'https://script.google.com/macros/s/AKfycby4qMzF6bRiLwmi8qDfYSu4bTxnxRiPqMc88Nc_qfRnIEi-hXeQRfZY3oc9lAeUHn2B/exec'; // Thay thế bằng URL từ Google Apps Script
         
-        let originalCards = []; // Lưu thứ tự gốc
-        let currentCards = []; // Thứ tự hiện tại
-        let isGridView = true; // true: dạng lưới, false: dạng hàng dọc
+        let originalCards = [];
+        let currentCards = [];
+        let isGridView = true;
         
-        // Khởi tạo
         document.addEventListener('DOMContentLoaded', function() {
             fetchData();
         });
         
-        // Lấy dữ liệu từ Google Sheets
         async function fetchData() {
             try {
                 showLoading(true);
@@ -257,14 +261,11 @@
                     throw new Error('Không có dữ liệu từ sheet');
                 }
                 
-                // Lưu dữ liệu
                 originalCards = result.data;
                 currentCards = [...originalCards];
                 
-                // Hiển thị thống kê
                 document.getElementById('stats').textContent = `Tổng số: ${originalCards.length} lá bài`;
                 
-                // Hiển thị bài
                 renderCards();
                 
             } catch (error) {
@@ -275,9 +276,7 @@
             }
         }
         
-        // Xáo bài
         window.shuffleCards = function() {
-            // Tạo bản sao của mảng hiện tại và xáo trộn
             const shuffled = [...currentCards];
             for (let i = shuffled.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
@@ -285,7 +284,6 @@
             }
             currentCards = shuffled;
             
-            // Thêm animation cho nút
             const btn = document.getElementById('shuffleBtn');
             btn.style.transform = 'rotate(360deg)';
             setTimeout(() => btn.style.transform = '', 300);
@@ -293,7 +291,6 @@
             renderCards();
         };
         
-        // Chuyển đổi layout
         window.toggleLayout = function() {
             isGridView = !isGridView;
             const btn = document.getElementById('layoutBtn');
@@ -307,14 +304,12 @@
                 document.querySelector('.cards-container').style.alignItems = 'center';
             }
             
-            // Thêm animation
             btn.style.transform = 'scale(0.95)';
             setTimeout(() => btn.style.transform = '', 200);
             
             renderCards();
         };
         
-        // Úp/mở lá bài
         window.toggleCard = function(cardId) {
             const card = document.getElementById(`card-${cardId}`);
             if (card) {
@@ -322,12 +317,11 @@
             }
         };
         
-        // Hiển thị các lá bài
         function renderCards() {
             const container = document.getElementById('cardsContainer');
             
             if (currentCards.length === 0) {
-                container.innerHTML = '<div style="color:white; text-align:center; width:100%;">Không có lá bài nào</div>';
+                container.innerHTML = '<div style="color:#ff69b4; text-align:center; width:100%;">Không có lá bài nào</div>';
                 return;
             }
             
@@ -349,14 +343,12 @@
             
             container.innerHTML = html;
             
-            // Reset layout
             container.style.flexDirection = isGridView ? 'row' : 'column';
             if (!isGridView) {
                 container.style.alignItems = 'center';
             }
         }
         
-        // UI Helpers
         function showLoading(show) {
             document.getElementById('loading').style.display = show ? 'block' : 'none';
         }
